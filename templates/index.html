@@ -1,12 +1,15 @@
+<!DOCTYPE html>
 <html>
   <head>
     <title>Weather App</title>
   </head>
   <body>
-    <h1>Enter a location:</h1>
-    <form method="POST" action="/weather">
-      <input type="text" name="location" required>
-      <button type="submit">Get weather</button>
+    <h1>Weather App</h1>
+    <form action="/weather" method="POST">
+      <label for="location">Enter location:</label>
+      <input type="text" id="location" name="location" value="{{ location }}">
+      <input type="submit" value="Get Weather">
     </form>
   </body>
 </html>
+y
