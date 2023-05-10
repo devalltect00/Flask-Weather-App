@@ -1,27 +1,42 @@
-from flask import Flask, render_template, request, make_response
+from flask import Flask, render_template, request, make_response, session
 import requests
-from config import DevelopmentConfig
+import json
+from datetime import datetime
 
 app = Flask(__name__)
-app.config.from_object(DevelopmentConfig)
+app.config.from_object("config.DevelopmentConfig")
+app.secret_key = app.config['SECRET_KEY']
 
-@app.route('/')
+@app.route("/", methods=["GET"])
 def index():
-    location = request.cookies.get('location')
-    return render_template('index.html', location=location)
+    location = None
+    if "location" in session:
+        location = session["location"]
+    return render_template("index.html", location=location)
 
-@app.route('/weather', methods=['POST'])
+@app.route("/weather", methods=["POST"])
 def weather():
-    location = request.form['location']
-    api_key = app.config['API_KEY']
-    url = f'https://api.openweathermap.org/data/2.5/weather?q={location}&appid={api_key}&units=metric'
+    city = request.form["city"]
+    url = f"http://api.openweathermap.org/data/2.5/weather?q={city}&units=metric&appid={app.config['API_KEY']}"
     response = requests.get(url)
-    data = response.json()
-    temperature = data['main']['temp']
-    description = data['weather'][0]['description']
-    resp = make_response(render_template('weather.html', temperature=temperature, description=description))
-    resp.set_cookie('location', location)
-    return resp
+    if response.status_code == 200:
+        data = json.loads(response.content.decode())
+        temperature = data["main"]["temp"]
+        icon = data["weather"][0]["icon"]
+        location = f"{data['name']}, {data['sys']['country']}"
+        session["location"] = location
+        now = datetime.now()
+        current_time = now.strftime("%H:%M:%S")
+        return render_template(
+            "weather.html",
+            temperature=temperature,
+            icon=icon,
+            location=location,
+            time=current_time,
+        )
+    else:
+        return render_template("error.html", error="City not found!")
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     app.run()

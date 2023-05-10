@@ -1,15 +1,21 @@
 <!DOCTYPE html>
 <html>
-  <head>
+
+<head>
+    <meta charset="utf-8">
     <title>Weather App</title>
-  </head>
-  <body>
+</head>
+
+<body>
     <h1>Weather App</h1>
-    <form action="/weather" method="POST">
-      <label for="location">Enter location:</label>
-      <input type="text" id="location" name="location" value="{{ location }}">
-      <input type="submit" value="Get Weather">
+    <form action="/weather" method="post">
+        <label for="city">Enter city:</label>
+        <input type="text" id="city" name="city" required>
+        <button type="submit">Get weather</button>
     </form>
-  </body>
+    {% if location %}
+    <p>Last searched location: {{ location }}</p>
+    {% endif %}
+</body>
+
 </html>
-y
